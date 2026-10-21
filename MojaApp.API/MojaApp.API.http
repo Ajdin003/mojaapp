@@ -1,0 +1,32 @@
+@MojaApp.API_HostAddress = http://localhost:5183
+
+### Svi studenti
+GET {{MojaApp.API_HostAddress}}/studenti
+Accept: application/json
+
+### Student po Id-u (200)
+GET {{MojaApp.API_HostAddress}}/studenti/1
+
+### Nepostojeći student (404)
+GET {{MojaApp.API_HostAddress}}/studenti/999
+
+### Dodavanje (201)
+POST {{MojaApp.API_HostAddress}}/studenti
+Content-Type: application/json
+
+{
+  "ime": "Lejla",
+  "prezime": "Lejlić",
+  "brojIndeksa": "IB260003",
+  "datumRodjenja": "2006-09-01"
+}
+
+### Neispravan broj indeksa (400)
+POST {{MojaApp.API_HostAddress}}/studenti
+Content-Type: application/json
+
+{
+  "ime": "Test",
+  "prezime": "Test",
+  "brojIndeksa": "123"
+}
