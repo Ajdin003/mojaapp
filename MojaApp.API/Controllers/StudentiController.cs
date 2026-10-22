@@ -41,6 +41,15 @@ public class StudentiController(StudentStorage storage) : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = student.Id }, Mapiraj(student)); // 201 + Location
     }
 
+    [HttpDelete("{id:int}")]
+    public IActionResult Obrisi(int id)
+    {
+        if (!storage.Obrisi(id))
+            return NotFound();
+
+        return NoContent(); // 204: uspjelo, nema tijela odgovora
+    }
+
     [HttpPut("{id:int}")]
     public IActionResult Uredi(int id, StudentUrediRequest request)
     {
