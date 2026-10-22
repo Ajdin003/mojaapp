@@ -26,4 +26,15 @@ public class StudentStorage
         _studenti.Add(student);
         return student;
     }
+
+    public bool Obrisi(int id)
+    {
+        Student? student = GetById(id);
+
+        if (student == null)
+            return false;
+
+        _studenti.Remove(student);
+        return true;
+    }
 }
