@@ -40,6 +40,7 @@ public class StudentiController(StudentStorage storage) : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = student.Id }, Mapiraj(student)); // 201 + Location
     }
+
     [HttpDelete("{id:int}")]
     public IActionResult Obrisi(int id)
     {
@@ -48,6 +49,23 @@ public class StudentiController(StudentStorage storage) : ControllerBase
 
         return NoContent(); // 204: uspjelo, nema tijela odgovora
     }
+
+    [HttpPut("{id:int}")]
+    public IActionResult Uredi(int id, StudentUrediRequest request)
+    {
+        Student? student = storage.GetById(id);
+
+        if (student == null)
+            return NotFound();
+
+        // storage vraća isti objekat koji je u listi, pa je izmjena odmah sačuvana
+        student.Ime = request.Ime;
+        student.Prezime = request.Prezime;
+        student.DatumRodjenja = request.DatumRodjenja;
+
+        return NoContent(); // 204
+    }
+
     private static StudentResponse Mapiraj(Student s) => new()
     {
         Id = s.Id,
