@@ -30,6 +30,10 @@ public class StudentiController(StudentStorage storage) : ControllerBase
     public ActionResult<StudentResponse> Dodaj(StudentDodajRequest request)
     {
         // [ApiController] sam vraća 400 ako request ne prođe validaciju iz StudentDodajRequest
+
+        // Format je ispravan, ali se sukobljava s postojećim podatkom -> 409, ne 400
+        if (storage.PostojiBrojIndeksa(request.BrojIndeksa))
+            return Conflict($"Student s brojem indeksa {request.BrojIndeksa} već postoji.");
         Student student = storage.Dodaj(new Student
         {
             Ime = request.Ime,
