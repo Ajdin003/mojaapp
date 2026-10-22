@@ -49,8 +49,4 @@ public class StudentStorage
         _studenti.Remove(student);
         return true;
     }
-
-
-    public bool PostojiBrojIndeksa(string brojIndeksa) =>
-        _studenti.Any(x => x.BrojIndeksa == brojIndeksa);
 }
