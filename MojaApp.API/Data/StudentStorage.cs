@@ -15,7 +15,19 @@ public class StudentStorage
         Dodaj(new Student { Ime = "Edin", Prezime = "Edić", BrojIndeksa = "IB260002" });
     }
 
-    public List<Student> GetAll() => _studenti;
+    public List<Student> GetAll(string? pretraga = null)
+    {
+        if (string.IsNullOrWhiteSpace(pretraga))
+            return _studenti;
+
+        string trazi = pretraga.Trim();
+
+        return _studenti
+            .Where(x => x.Ime.Contains(trazi, StringComparison.OrdinalIgnoreCase)
+                     || x.Prezime.Contains(trazi, StringComparison.OrdinalIgnoreCase)
+                     || x.BrojIndeksa.Contains(trazi, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
 
     public Student? GetById(int id) => _studenti.FirstOrDefault(x => x.Id == id);
 
