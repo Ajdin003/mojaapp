@@ -10,9 +10,9 @@ namespace MojaApp.API.Controllers;
 public class StudentiController(StudentStorage storage) : ControllerBase
 {
     [HttpGet]
-    public List<StudentResponse> GetAll()
+    public List<StudentResponse> GetAll([FromQuery] string? pretraga)
     {
-        return storage.GetAll().Select(Mapiraj).ToList();
+        return storage.GetAll(pretraga).Select(Mapiraj).ToList();
     }
 
     [HttpGet("{id:int}")]
