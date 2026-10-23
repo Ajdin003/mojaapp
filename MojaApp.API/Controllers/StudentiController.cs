@@ -1,76 +1,111 @@
 using Microsoft.AspNetCore.Mvc;
+
+using Microsoft.EntityFrameworkCore;
+
 using MojaApp.API.Data;
+
 using MojaApp.API.Dtos;
+
 using MojaApp.API.Models;
+
+
 
 namespace MojaApp.API.Controllers;
 
+
+
 [ApiController]
+
 [Route("[controller]")]
-public class StudentiController(StudentStorage storage) : ControllerBase
+
+public class StudentiController(AppDbContext db) : ControllerBase
+
 {
+
     [HttpGet]
-    public List<StudentResponse> GetAll([FromQuery] string? pretraga)
+
+    public async Task<List<StudentResponse>> GetAll(CancellationToken ct)
+
     {
-        return storage.GetAll(pretraga).Select(Mapiraj).ToList();
+
+        List<Student> studenti = await db.Studenti.ToListAsync(ct); // SELECT 
+
+        return studenti.Select(Mapiraj).ToList();
+
     }
+
+
 
     [HttpGet("{id:int}")]
-    public ActionResult<StudentResponse> GetById(int id)
+
+    public async Task<ActionResult<StudentResponse>> GetById(int id, CancellationToken ct)
+
     {
-        Student? student = storage.GetById(id);
+
+        Student? student = await db.Studenti.FirstOrDefaultAsync(x => x.Id == id, ct); // SELECT ... WHERE Id = @id 
+
+
 
         if (student == null)
-            return NotFound(); // 404, a ne izuzetak (500)
+
+            return NotFound();
+
+
 
         return Mapiraj(student);
+
     }
+
+
 
     [HttpPost]
-    public ActionResult<StudentResponse> Dodaj(StudentDodajRequest request)
+
+    public async Task<ActionResult<StudentResponse>> Dodaj(StudentDodajRequest request, CancellationToken ct)
+
     {
-        // [ApiController] sam vraća 400 ako request ne prođe validaciju iz StudentDodajRequest
-        Student student = storage.Dodaj(new Student
+
+        Student student = new()
+
         {
+
             Ime = request.Ime,
+
             Prezime = request.Prezime,
+
             BrojIndeksa = request.BrojIndeksa,
+
             DatumRodjenja = request.DatumRodjenja,
-        });
 
-        return CreatedAtAction(nameof(GetById), new { id = student.Id }, Mapiraj(student)); // 201 + Location
+            DatumKreiranja = DateTime.UtcNow,
+
+        };
+
+
+
+        db.Studenti.Add(student);
+
+        await db.SaveChangesAsync(ct); // INSERT; baza dodjeljuje Id 
+
+
+
+        return CreatedAtAction(nameof(GetById), new { id = student.Id }, Mapiraj(student));
+
     }
 
-    [HttpDelete("{id:int}")]
-    public IActionResult Obrisi(int id)
-    {
-        if (!storage.Obrisi(id))
-            return NotFound();
 
-        return NoContent(); // 204: uspjelo, nema tijela odgovora
-    }
-
-    [HttpPut("{id:int}")]
-    public IActionResult Uredi(int id, StudentUrediRequest request)
-    {
-        Student? student = storage.GetById(id);
-
-        if (student == null)
-            return NotFound();
-
-        // storage vraća isti objekat koji je u listi, pa je izmjena odmah sačuvana
-        student.Ime = request.Ime;
-        student.Prezime = request.Prezime;
-        student.DatumRodjenja = request.DatumRodjenja;
-
-        return NoContent(); // 204
-    }
 
     private static StudentResponse Mapiraj(Student s) => new()
+
     {
+
         Id = s.Id,
+
         ImePrezime = $"{s.Ime} {s.Prezime}",
+
         BrojIndeksa = s.BrojIndeksa,
+
         DatumRodjenja = s.DatumRodjenja,
+
     };
+
 }
