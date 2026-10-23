@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using MojaApp.API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,8 +10,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Jedna instanca za cijelu aplikaciju, inače bi svaki request dobio praznu listu.
-builder.Services.AddSingleton<StudentStorage>();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Main")));
 
 var app = builder.Build();
 
